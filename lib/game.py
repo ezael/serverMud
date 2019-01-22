@@ -16,11 +16,6 @@ def show_prompt(mud, id):
     mud.send_message(id, "\033[22;2HEntrez votre commande: ")
 
 
-def refresh_content(mud, id):
-    for i in range(2, 21):
-        mud.send_message(id, "\033["+str(i)+";2H"+" "*78)
-
-
 def pos(l,c):
     return "\033["+str(l)+";"+str(c)+"H"
 
@@ -35,3 +30,24 @@ def cof():
 
 def ctxt(c, txt):
     return "\033["+str(c)+";1m"+txt+"\033[0m"
+
+
+def txt(texte, new):
+    texte.append(new)
+
+    if len(texte) == 20:
+        texte.pop(0)
+
+    return texte
+
+
+def refresh(mud, id, texte):
+    background(mud, id)
+
+    for i in range(2, 21):
+        mud.send_message(id, "\033["+str(i)+";2H"+" "*78)
+
+    for i in range(0, len(texte)):
+        mud.send_message(id, "\033[" + str(i+2) + ";2H" + texte[i])
+
+    show_prompt(mud, id)

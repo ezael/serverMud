@@ -21,6 +21,8 @@ rooms = {
     }
 }
 
+texte = []
+
 # liste des joueurs connectés
 players = {}
 
@@ -60,14 +62,13 @@ while True:
         }
 
         # send the new player a prompt for their name
-        background(mud, id)
-        refresh_content(mud,id)
+        txt(texte, ctxt(37, "---------- CENDRELUNE le retour 2 ----------"))
+        txt(texte, "")
+        txt(texte, "Pour creer un nouveau personnages: "+ctxt(37, "creer")+" <nom> <motdepasse>")
+        txt(texte, "Pour jouer avec un personnage existant: "+ctxt(37, "connexion")+" <nom> <motdepasse>")
+        txt(texte, "")
 
-        mud.send_message(id, pos(2, 2)+ctxt(37, "---------- CENDRELUNE le retour ----------"))
-        mud.send_message(id, pos(4, 2)+"Pour creer un nouveau personnages: "+ctxt(37, "creer")+" <nom> <motdepasse>")
-        mud.send_message(id, pos(5, 2)+"Pour jouer avec un personnage existant: "+ctxt(37, "connexion")+" <nom> <motdepasse>")
-
-        show_prompt(mud, id)
+        refresh(mud, id, texte)
 
     # go through any recently disconnected players
     for id in mud.get_disconnected_players():
@@ -81,8 +82,8 @@ while True:
         for pid, pl in players.items():
             if pid != id:
                 # envoie d'un message a chacun, sauf au joueur qui quitte
-                txt = "{} a quitte le jeu.".format(players[id]["name"])
-                mud.send_message(pid, pos(23,2) + ctxt(31, txt))
+                txt(texte, "{} a quitte le jeu.".format(players[id]["name"]))
+                refresh(mud, id, texte)
 
         # on enleve le joueur de la liste des connectés
         del(players[id])
@@ -151,18 +152,29 @@ while True:
         # 'aide' command
         elif command == "aide":
 
-            refresh_content(mud, id)
+            if not params:
+                txt(texte, "Commandes:")
+                txt(texte, ctxt(37, "reg                    ")+"- regarder autour de vous")
+                txt(texte, ctxt(37, "dire <message>         ")+"- dit un texte aux joueurs presents dans la zone")
+                txt(texte, ctxt(37, "aller <sortie>         ")+"- se deplace vers une autre zone")
+                txt(texte, ctxt(37, "donne <objet> <joueur> ")+"- donne un objet de votre inventaire a un joueur")
+                txt(texte, ctxt(37, "prendre <objet>        ")+"- prends un objet et le met dans l'inventaire")
+                txt(texte, ctxt(37, "perso                  ")+"- affiche la feuille de personnage")
+                txt(texte, ctxt(37, "magie                  ")+"- affiche vos sorts")
+                txt(texte, ctxt(37, "combat                 ")+"- passe en mode combat")
+                txt(texte, ctxt(37, "fuir                   ")+"- fuit le combat")
+                txt(texte, "")
 
-            mud.send_message(id, pos(2, 2) +"Commandes :")
-            mud.send_message(id, pos(4, 2) +ctxt(37, "reg                    ")+"- regarder autour de vous")
-            mud.send_message(id, pos(5, 2) +ctxt(37, "dire <message>         ")+"- dit un texte aux joueurs presents dans la zone")
-            mud.send_message(id, pos(6, 2) +ctxt(37, "aller <sortie>         ")+"- se deplace vers une autre zone")
-            mud.send_message(id, pos(6, 2) +ctxt(37, "donne <objet> <joueur> ")+"- donne un objet de votre inventaire a un joueur")
-            mud.send_message(id, pos(7, 2) +ctxt(37, "prendre <objet>        ")+"- prends un objet et le met dans l'inventaire")
-            mud.send_message(id, pos(8, 2) +ctxt(37, "perso                  ")+"- affiche la feuille de personnage")
-            mud.send_message(id, pos(9, 2) +ctxt(37, "magie                  ")+"- affiche vos sorts")
-            mud.send_message(id, pos(10, 2)+ctxt(37, "combat                 ")+"- passe en mode combat")
-            mud.send_message(id, pos(11, 2)+ctxt(37, "fuir                   ")+"- fuit le combat")
+                refresh(mud, id, texte)
+
+            elif params == 'sorts magicien':
+                txt(texte, "Liste des sorts:")
+                txt(texte, "")
+                txt(texte, "PM: lumiere")
+                txt(texte, "PM: armure")
+                txt(texte, "")
+
+                refresh(mud, id, texte)
 
         # 'say' command
         elif command == "dire" and players[id]["connexion"] == 1:
