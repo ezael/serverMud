@@ -63,7 +63,7 @@ while True:
         background(mud, id)
         refresh_content(mud,id)
 
-        mud.send_message(id, pos(2, 2)+ctxt(37, "---------- CENDRELUNE ----------"))
+        mud.send_message(id, pos(2, 2)+ctxt(37, "---------- CENDRELUNE le retour ----------"))
         mud.send_message(id, pos(4, 2)+"Pour creer un nouveau personnages: "+ctxt(37, "creer")+" <nom> <motdepasse>")
         mud.send_message(id, pos(5, 2)+"Pour jouer avec un personnage existant: "+ctxt(37, "connexion")+" <nom> <motdepasse>")
 
