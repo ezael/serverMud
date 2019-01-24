@@ -62,8 +62,8 @@ while True:
         }
 
         # send the new player a prompt for their name
-        mud.send_message(id, "")
-        mud.send_message(id, ctxt(37, "--- bienvenue ---"))
+        txt(mud, id, "")
+        txt(mud, id, ctxt(37, "--- bienvenue ---"))
         show_prompt(mud, id)
 
     # go through any recently disconnected players
@@ -78,8 +78,8 @@ while True:
         for pid, pl in players.items():
             if pid != id:
                 # envoie d'un message a chacun, sauf au joueur qui quitte
-                mud.send_message(id, "")
-                mud.send_message(id, "{} a quitte le jeu.".format(players[id]["name"]))
+                txt(mud, id, "")
+                txt(mud, id, "{} a quitte le jeu.".format(players[id]["name"]))
                 show_prompt(mud, id)
 
         # on enleve le joueur de la liste des connectés
@@ -110,10 +110,10 @@ while True:
 
             if playerExist == 1:
                 # ce nom existe deja dans la BD !
-                mud.send_message(id, "")
-                mud.send_message(id, "Ce nom de joueur existe deja dans notre base !")
-                mud.send_message(id, "Merci d'en choisir un autre ou de vous connecter en tapant la commande :")
-                mud.send_message(id, "\033[1mconnect \033[0m "+theParams[0]+" <motdepasse>\n")
+                txt(mud, id, "")
+                txt(mud, id, "Ce nom de joueur existe deja dans notre base !")
+                txt(mud, id, "Merci d'en choisir un autre ou de vous connecter en tapant la commande :")
+                txt(mud, id, "\033[1mconnect \033[0m "+theParams[0]+" <motdepasse>\n")
 
                 show_prompt(mud, id)
             else:
@@ -126,10 +126,9 @@ while True:
                 players[id]["password"] = theParams[1]
 
                 # on lui affiche un message de bienvenue
-                mud.send_message(id, "")
-                mud.send_message(id, "Nouveau commpte créé !")
-                mud.send_message(id, "Bienvenue dans Cendrelune, {}.\n".format(players[id]["name"]))
-                mud.send_message(id, "Entrez 'help' pour voir la liste des commandes. Bon jeu !")
+                txt(mud, id, "")
+                txt(mud, id, "Nouveau commpte créé !")
+                txt(mud, id, "Bienvenue, {}.\n".format(players[id]["name"]))
 
                 show_prompt(mud, id)
 
@@ -139,20 +138,28 @@ while True:
                 #mud.send_message(id, get_zone_description(conn, "Tavern"))
 
                 # on prévient les autres joueurs connectés qu'il vient d'arriver
-                for pid, pl in players.items():
-                    if pid != id:
-                        # send each player a message to tell them about the new player
-                        mud.send_message(id, "")
-                        mud.send_message(pid, "\033[23;2H\033[31;1m{} vient de se connecter.\033[0m".format( players[id]["name"]))
+                #for pid, pl in players.items():
+                #    if pid != id:
+                #        # send each player a message to tell them about the new player
+                #        mud.send_message(id, "")
+                #        mud.send_message(pid, "\033[23;2H\033[31;1m{} vient de se connecter.\033[0m".format( players[id]["name"]))
 
-                        show_prompt(mud, id)
+                #        show_prompt(mud, id)
 
         # 'aide' command
-        elif command == "aide":
+        elif command == "m" or command == "M":
 
             if not params:
-                mud.send_message(id, "")
-                mud.send_message(id, "Commandes:")
+                txt(mud, id, "")
+                txt(mud, id, "Menu:")
+                txt(mud, id, "-------------------------------------------")
+                txt(mud, id, "[s] Changer de station")
+                txt(mud, id, "[v] Etat de la station")
+                txt(mud, id, "[c] Constructions")
+                txt(mud, id, "[r] Recherches")
+                txt(mud, id, "[f] Flottes")
+                txt(mud, id, "[n] Navires")
+
                 show_prompt(mud, id)
 
         # 'say' command
@@ -163,8 +170,8 @@ while True:
                 # if they're in the same room as the player
                 if players[pid]["room"] == players[id]["room"]:
                     # send them a message telling them what the player said
-                    mud.send_message(id, "")
-                    mud.send_message(pid, "{} dit: {}".format(players[id]["name"], params))
+                    txt(mud, id, "")
+                    txt(mud, pid, "{} dit: {}".format(players[id]["name"], params))
                     show_prompt(mud, id)
 
         # 'look' command
@@ -175,8 +182,8 @@ while True:
                 rm = rooms[players[id]["room"]]
 
                 # send the player back the description of their current room
-                mud.send_message(id, "")
-                mud.send_message(id, get_zone_description(conn, players[id]["room"]))
+                txt(mud, id, "")
+                txt(mud, id, get_zone_description(conn, players[id]["room"]))
                 show_prompt(mud, id)
 
                 playershere = []
@@ -190,10 +197,10 @@ while True:
                             playershere.append(players[pid]["name"])
 
                 # send player a message containing the list of players in the room
-                mud.send_message(id, "Joueurs presents: {}".format(", ".join(playershere)))
+                txt(mud, id, "Joueurs presents: {}".format(", ".join(playershere)))
 
                 # send player a message containing the list of exits from this room
-                mud.send_message(id, "Sorties visibles: {}".format(", ".join(rm["exits"])))
+                txt(mud, id, "Sorties visibles: {}".format(", ".join(rm["exits"])))
 
         # 'go' command
         elif command == "go" and players[id]["connexion"] == 1:
@@ -214,7 +221,7 @@ while True:
                     if players[pid]["room"] == players[id]["room"] and pid != id:
                         # send them a message telling them that the player
                         # left the room
-                        mud.send_message(pid, "{} left via exit '{}'".format(players[id]["name"], ex))
+                        txt(mud, pid, "{} left via exit '{}'".format(players[id]["name"], ex))
 
                 # update the player's current room to the one the exit leads to
                 players[id]["room"] = rm["exits"][ex]
@@ -227,18 +234,18 @@ while True:
                     if players[pid]["room"] == players[id]["room"] and pid != id:
                         # send them a message telling them that the player
                         # entered the room
-                        mud.send_message(pid, "{} arrived via exit '{}'".format(players[id]["name"], ex))
+                        txt(mud, pid, "{} arrived via exit '{}'".format(players[id]["name"], ex))
 
                 # send the player a message telling them where they are now
-                mud.send_message(id, "Vous arrivez a: '{}'".format(players[id]["room"]))
+                txt(mud, id, "Vous arrivez a: '{}'".format(players[id]["room"]))
 
             # the specified exit wasn't found in the current room
             else:
                 # send back an 'unknown exit' message
-                mud.send_message(id, "Sortie inconnue: '{}'".format(ex))
+                txt(mud, id, "Sortie inconnue: '{}'".format(ex))
 
         # some other, unrecognised command
         else:
             # send back an 'unknown command' message
-            mud.send_message(id, "Commande inconnue: '{}'".format(command))
+            txt(mud, id, "Commande inconnue: '{}'".format(command))
             show_prompt(mud, id)
