@@ -62,13 +62,9 @@ while True:
         }
 
         # send the new player a prompt for their name
-        txt(texte, ctxt(37, "---------- CENDRELUNE le retour 2 ----------"))
-        txt(texte, "")
-        txt(texte, "Pour creer un nouveau personnages: "+ctxt(37, "creer")+" <nom> <motdepasse>")
-        txt(texte, "Pour jouer avec un personnage existant: "+ctxt(37, "connexion")+" <nom> <motdepasse>")
-        txt(texte, "")
-
-        refresh(mud, id, texte)
+        mud.send_message(id, "")
+        mud.send_message(id, ctxt(37, "--- bienvenue ---"))
+        show_prompt(mud, id)
 
     # go through any recently disconnected players
     for id in mud.get_disconnected_players():
@@ -82,8 +78,9 @@ while True:
         for pid, pl in players.items():
             if pid != id:
                 # envoie d'un message a chacun, sauf au joueur qui quitte
-                txt(texte, "{} a quitte le jeu.".format(players[id]["name"]))
-                refresh(mud, id, texte)
+                mud.send_message(id, "")
+                mud.send_message(id, "{} a quitte le jeu.".format(players[id]["name"]))
+                show_prompt(mud, id)
 
         # on enleve le joueur de la liste des connectés
         del(players[id])
@@ -113,11 +110,10 @@ while True:
 
             if playerExist == 1:
                 # ce nom existe deja dans la BD !
-                refresh_content(mud, id)
-
-                mud.send_message(id, "\033[2;2HCe nom de joueur existe deja dans notre base !")
-                mud.send_message(id, "\033[4;2HMerci d'en choisir un autre ou de vous connecter en tapant la commande :")
-                mud.send_message(id, "\033[5;2H\033[1mconnect \033[0m "+theParams[0]+" <motdepasse>\n")
+                mud.send_message(id, "")
+                mud.send_message(id, "Ce nom de joueur existe deja dans notre base !")
+                mud.send_message(id, "Merci d'en choisir un autre ou de vous connecter en tapant la commande :")
+                mud.send_message(id, "\033[1mconnect \033[0m "+theParams[0]+" <motdepasse>\n")
 
                 show_prompt(mud, id)
             else:
@@ -130,11 +126,10 @@ while True:
                 players[id]["password"] = theParams[1]
 
                 # on lui affiche un message de bienvenue
-                refresh_content(mud, id)
-
-                mud.send_message(id, "\033[2;2HNouveau commpte créé !")
-                mud.send_message(id, "\033[4;2HBienvenue dans Cendrelune, {}.\n".format(players[id]["name"]))
-                mud.send_message(id, "\033[5;2HEntrez 'help' pour voir la liste des commandes. Bon jeu !")
+                mud.send_message(id, "")
+                mud.send_message(id, "Nouveau commpte créé !")
+                mud.send_message(id, "Bienvenue dans Cendrelune, {}.\n".format(players[id]["name"]))
+                mud.send_message(id, "Entrez 'help' pour voir la liste des commandes. Bon jeu !")
 
                 show_prompt(mud, id)
 
@@ -147,34 +142,18 @@ while True:
                 for pid, pl in players.items():
                     if pid != id:
                         # send each player a message to tell them about the new player
+                        mud.send_message(id, "")
                         mud.send_message(pid, "\033[23;2H\033[31;1m{} vient de se connecter.\033[0m".format( players[id]["name"]))
+
+                        show_prompt(mud, id)
 
         # 'aide' command
         elif command == "aide":
 
             if not params:
-                txt(texte, "Commandes:")
-                txt(texte, ctxt(37, "reg                    ")+"- regarder autour de vous")
-                txt(texte, ctxt(37, "dire <message>         ")+"- dit un texte aux joueurs presents dans la zone")
-                txt(texte, ctxt(37, "aller <sortie>         ")+"- se deplace vers une autre zone")
-                txt(texte, ctxt(37, "donne <objet> <joueur> ")+"- donne un objet de votre inventaire a un joueur")
-                txt(texte, ctxt(37, "prendre <objet>        ")+"- prends un objet et le met dans l'inventaire")
-                txt(texte, ctxt(37, "perso                  ")+"- affiche la feuille de personnage")
-                txt(texte, ctxt(37, "magie                  ")+"- affiche vos sorts")
-                txt(texte, ctxt(37, "combat                 ")+"- passe en mode combat")
-                txt(texte, ctxt(37, "fuir                   ")+"- fuit le combat")
-                txt(texte, "")
-
-                refresh(mud, id, texte)
-
-            elif params == 'sorts magicien':
-                txt(texte, "Liste des sorts:")
-                txt(texte, "")
-                txt(texte, "PM: lumiere")
-                txt(texte, "PM: armure")
-                txt(texte, "")
-
-                refresh(mud, id, texte)
+                mud.send_message(id, "")
+                mud.send_message(id, "Commandes:")
+                show_prompt(mud, id)
 
         # 'say' command
         elif command == "dire" and players[id]["connexion"] == 1:
@@ -184,8 +163,9 @@ while True:
                 # if they're in the same room as the player
                 if players[pid]["room"] == players[id]["room"]:
                     # send them a message telling them what the player said
-                    mud.send_message(pid, "{} dit: {}".format(
-                                                players[id]["name"], params))
+                    mud.send_message(id, "")
+                    mud.send_message(pid, "{} dit: {}".format(players[id]["name"], params))
+                    show_prompt(mud, id)
 
         # 'look' command
         elif command == "regarder" or command == 'reg':
@@ -195,7 +175,9 @@ while True:
                 rm = rooms[players[id]["room"]]
 
                 # send the player back the description of their current room
+                mud.send_message(id, "")
                 mud.send_message(id, get_zone_description(conn, players[id]["room"]))
+                show_prompt(mud, id)
 
                 playershere = []
                 # go through every player in the game
@@ -258,5 +240,5 @@ while True:
         # some other, unrecognised command
         else:
             # send back an 'unknown command' message
-            mud.send_message(id, pos(23, 2)+con(31)+"Commande inconnue: '{}'".format(command)+cof())
+            mud.send_message(id, "Commande inconnue: '{}'".format(command))
             show_prompt(mud, id)

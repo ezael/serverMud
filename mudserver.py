@@ -183,7 +183,7 @@ class MudServer(object):
         """
         # we make sure to put a newline on the end so the client receives the
         # message on its own line
-        self._attempt_send(to, message)
+        self._attempt_send(to, message+"\n\r")
 
     def shutdown(self):
         """Closes down the server, disconnecting all clients and
